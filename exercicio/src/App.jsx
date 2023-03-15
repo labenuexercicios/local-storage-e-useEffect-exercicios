@@ -19,38 +19,52 @@ const InputsContainer = styled.div`
 `
 
 function App() {
-  const [tarefas, setTarefa] = useState([]);
+  const [tarefas, setTarefas] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [filtro, setFiltro] = useState("")
 
-  // useEffect() => {
-  //   () => {
+  useEffect(() => {
+    const tarefaExiste = localStorage.getItem("tarefa");
+    if(tarefaExiste){
+      const tarefaParaArray = JSON.parse(tarefaExiste);
+      setTarefas(tarefaParaArray);
+    };
+  }, []);
 
-  //   },
-  //   []
-  // };
-
-  // useEffect() => {
-  //   () => {
-
-  //   },
-  //   []
-  // };
+  useEffect(() => {
+    localStorage.setItem("tarefas", JSON.stringify(tarefas)); // essa parte do JSON, é pq o tarefas é um array e o localStorage só guarda string
+  }, [tarefas])
 
   const onChangeInput = (event) => {
-    console.log("aaa");
+    setInputValue(event.target.value);
   }
 
+
   const criaTarefa = () => {
-    console.log("aaa");
+    const tarefaCriada = {
+      id: Date.now(),
+      texto: inputValue,
+      completa: false
+    };
+
+    if(!inputValue) return alert("O campo precisa ser preenchido");
+    setTarefas([...tarefas, tarefaCriada]);
+    setInputValue("");
   }
 
   const selectTarefa = (id) => {
-    console.log("aaa");
+    const mudaTarefa = tarefas.map((tarefa) => {
+      if(tarefa.id === id){
+        tarefa.completa = !tarefa.completa
+      };
+      return tarefa
+    });
+
+    setTarefas(mudaTarefa);
   }
 
   const onChangeFilter = (event) => {
-    console.log("aaa");
+    setFiltro(event.target.value);
   }
 
 
@@ -84,9 +98,10 @@ function App() {
         </select>
       </InputsContainer>
       <TarefaList>
-        {listaFiltrada.map(tarefa => {
+        {listaFiltrada.map((tarefa, index) => {
           return (
             <Tarefa
+              key={index}
               completa={tarefa.completa}
               onClick={() => selectTarefa(tarefa.id)}
             >
